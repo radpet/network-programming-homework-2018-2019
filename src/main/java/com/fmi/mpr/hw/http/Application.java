@@ -1,12 +1,11 @@
 package com.fmi.mpr.hw.http;
 
+import com.fmi.mpr.hw.http.common.Config;
+
 public class Application {
 
     public static void main(String[] args) {
-        String iface = "127.0.0.1";
-        int port = 8080;
-
         HttpServer server = new HttpServer();
-        server.serve(iface, port);
+        server.serve(Config.get(Config.SERVER_HOST), Integer.parseInt(Config.get(Config.SERVER_PORT)));
     }
 }

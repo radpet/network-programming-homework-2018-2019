@@ -15,15 +15,7 @@ public class HttpServer {
         running = true;
     }
 
-
-    private void handleClient(Socket client) {
-        Thread t = new Thread(new RequestHandler(client));
-        t.start();
-    }
-
-
     public void serve(String iface, int port) {
-
         try {
             socket = new ServerSocket(port, 0, InetAddress.getByName(iface));
         } catch (IOException e) {
@@ -33,7 +25,7 @@ public class HttpServer {
         System.out.printf("Listening on %s:%d...\n", iface, port);
         while (running) {
             try {
-                handleClient(socket.accept());
+                handleRequest(socket.accept());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -46,4 +38,10 @@ public class HttpServer {
             e.printStackTrace();
         }
     }
+
+    private void handleRequest(Socket request) {
+        System.out.println("Request from client with ip=" + request.getInetAddress());
+        new Thread(new RequestHandler(request)).start();
+    }
+
 }

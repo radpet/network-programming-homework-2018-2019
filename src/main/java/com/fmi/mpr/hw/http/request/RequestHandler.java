@@ -1,34 +1,40 @@
 package com.fmi.mpr.hw.http.request;
 
-import java.io.BufferedReader;
+import com.fmi.mpr.hw.http.common.HeaderField;
+import com.fmi.mpr.hw.http.response.Response;
+import com.fmi.mpr.hw.http.response.ResponseWriter;
+import com.fmi.mpr.hw.http.router.Router;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.Optional;
 
 public class RequestHandler implements Runnable {
 
-    private Socket client;
+    private Socket requestSocket;
 
-    public RequestHandler(Socket client) {
-        this.client = client;
+    public RequestHandler(Socket requestSocket) {
+        this.requestSocket = requestSocket;
     }
 
     public void run() {
-        read();
-    }
-
-
-    private void read() {
         try {
-            BufferedReader bis = new BufferedReader(new
-                    InputStreamReader(client.getInputStream()));
-            String inputLine;
-            while ((inputLine = bis.readLine()) != null) {
-                System.out.println(inputLine);
+            requestSocket.setSoTimeout(30000);
+            Response response = Response.BAD_REQUEST();
+            Optional<RequestBuilder.Request> requestOpt = RequestBuilder.build(this.requestSocket.getInputStream());
+            if (requestOpt.isPresent()) {
+                response = Router.handleRequest(requestOpt.get());
             }
+            response.setHeader(HeaderField.SERVER, "FMI Project HTTP server");
+
+            ResponseWriter.write(requestSocket.getOutputStream(), response);
+            //should embed the response writer inside the response
+            response.end();
+            requestSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
 
