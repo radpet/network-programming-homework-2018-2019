@@ -1,8 +1,6 @@
 package com.fmi.mpr.hw.http.request;
 
-import com.fmi.mpr.hw.http.common.HeaderField;
 import com.fmi.mpr.hw.http.response.Response;
-import com.fmi.mpr.hw.http.response.ResponseWriter;
 import com.fmi.mpr.hw.http.router.Router;
 
 import java.io.IOException;
@@ -25,14 +23,16 @@ public class RequestHandler implements Runnable {
             if (requestOpt.isPresent()) {
                 response = Router.handleRequest(requestOpt.get());
             }
-            response.setHeader(HeaderField.SERVER, "FMI Project HTTP server");
+            response.commit(requestSocket.getOutputStream());
 
-            ResponseWriter.write(requestSocket.getOutputStream(), response);
-            //should embed the response writer inside the response
-            response.end();
-            requestSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                requestSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
     }

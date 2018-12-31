@@ -2,18 +2,15 @@ package com.fmi.mpr.hw.http.request;
 
 import com.fmi.mpr.hw.http.common.Header;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Optional;
 
 public class RequestBuilder {
 
     public static Optional<Request> build(InputStream inputStream) throws IOException {
         Request request = new Request();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        String line = reader.readLine();
+        String line = readLine(inputStream);
         Optional<RequestLine> requestLineOpt = readRequestLine(line);
         if (!requestLineOpt.isPresent()) {
             return Optional.empty();
@@ -23,12 +20,29 @@ public class RequestBuilder {
         request.path = requestLine.path;
         request.httpVersion = requestLine.httpVersion;
 
-        while (!(line = reader.readLine()).isEmpty()) {
+        while (!(line = readLine(inputStream)).isEmpty()) {
             HeaderEntry headerEntry = readHeader(line);
             request.header.set(headerEntry.key, headerEntry.value);
         }
 
+        request.content = inputStream;
         return Optional.of(request);
+    }
+
+    private static String readLine(InputStream stream) throws IOException {
+        StringBuilder line = new StringBuilder();
+
+        int ch;
+
+        while ((ch = stream.read()) != '\r') {
+            line.append((char) ch);
+        }
+
+        if (stream.read() != '\n') {
+            throw new IOException("Missing Linefeed character.");
+        }
+
+        return line.toString();
     }
 
     private static Optional<RequestLine> readRequestLine(String line) {
@@ -78,6 +92,7 @@ public class RequestBuilder {
         private MethodType methodType;
         private Header header;
         private String httpVersion;
+        private InputStream content;
 
         Request() {
             header = new Header();
@@ -91,12 +106,16 @@ public class RequestBuilder {
             return path;
         }
 
-        public Header getHeader() {
-            return header;
-        }
-
         public String getHttpVersion() {
             return httpVersion;
+        }
+
+        public InputStream getContent() {
+            return content;
+        }
+
+        public Header getHeader() {
+            return header;
         }
     }
 

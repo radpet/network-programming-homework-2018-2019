@@ -2,11 +2,10 @@ package com.fmi.mpr.hw.http.response;
 
 import com.fmi.mpr.hw.http.common.Header;
 import com.fmi.mpr.hw.http.common.HeaderField;
+import com.fmi.mpr.hw.http.common.IOUtil;
 import com.fmi.mpr.hw.http.common.StatusCode;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 public class Response {
     private String httpVersion;
@@ -16,6 +15,7 @@ public class Response {
 
     public Response() {
         header = new Header();
+        setHeader(HeaderField.SERVER, "FMI Project HTTP server");
         statusCode = StatusCode.OK;
         httpVersion = "HTTP/1.1";
         content = new ByteArrayInputStream("".getBytes());
@@ -60,11 +60,18 @@ public class Response {
         return text.toString();
     }
 
-    public void end() {
-        try {
-            content.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void commit(OutputStream outputStream) throws IOException {
+        writeResponseMeta(outputStream);
+        IOUtil.writeTo(getContent(), outputStream);
+        outputStream.flush();
+        content.close();
+    }
+
+
+    private void writeResponseMeta(OutputStream outputStream) {
+        PrintWriter out = new PrintWriter(outputStream);
+        String serializedResponse = toString();
+        out.println(serializedResponse);
+        out.flush();
     }
 }

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Header {
+
     private Map<String, String> values;
 
     public Header() {
@@ -17,7 +18,6 @@ public class Header {
     public String get(HeaderField field) {
         return values.get(field.getKey());
     }
-
     @Override
     public String toString() {
         StringBuilder serialized = new StringBuilder();

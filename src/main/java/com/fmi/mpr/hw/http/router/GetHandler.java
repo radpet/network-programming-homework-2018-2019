@@ -28,6 +28,7 @@ public class GetHandler implements Handler {
 
     @Override
     public void handle(RequestBuilder.Request request, Response response) {
+        System.out.println("GET received");
         Optional<Path> fileOpt = fileStorage.load(request.getPath());
         StatusCode statusCode = StatusCode.NOT_FOUND;
         if (fileOpt.isPresent()) {

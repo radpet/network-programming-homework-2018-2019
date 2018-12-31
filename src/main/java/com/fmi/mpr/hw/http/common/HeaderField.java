@@ -1,7 +1,7 @@
 package com.fmi.mpr.hw.http.common;
 
 public enum HeaderField {
-    SERVER("SERVER"),
+    SERVER("Server"),
     CONTENT_LENGTH("Content-Length"),
     CONTENT_TYPE("Content-Type");
 

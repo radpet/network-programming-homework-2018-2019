@@ -19,11 +19,11 @@ public class FileStorage {
         this.basePath = Config.get(Config.FILE_BASE_PATH);
     }
 
-    public void save(String filename, InputStream inputStream) throws IOException {
-        OutputStream outStream = new FileOutputStream(Paths.get(basePath, filename).toFile());
-        IOUtil.writeTo(inputStream, outStream);
-        outStream.flush();
-        outStream.close();
+    public void save(String filename, InputStream inputStream, int fileSize) throws IOException {
+        try (OutputStream outStream = new FileOutputStream(Paths.get(basePath, filename).toFile())) {
+            IOUtil.writeTo(inputStream, outStream, fileSize);
+            outStream.flush();
+        }
     }
 
     public Optional<Path> load(String path) {

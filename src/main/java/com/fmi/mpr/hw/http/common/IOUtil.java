@@ -14,4 +14,17 @@ public class IOUtil {
             out.write(buf, 0, bytes);
         }
     }
+
+    public static void writeTo(InputStream in, OutputStream out, int limit) throws IOException {
+        byte[] buf = new byte[1024];
+        int bytes;
+        int written = 0;
+        while ((bytes = in.read(buf)) != -1) {
+            written += bytes;
+            if (written >= limit) {
+                break;
+            }
+            out.write(buf, 0, bytes);
+        }
+    }
 }
